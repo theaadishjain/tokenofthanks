@@ -1,0 +1,49 @@
+{
+  "name": "token-of-thanks-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Token of Thanks - Digital Gratitude Platform",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1",
+    "react-scripts": "5.0.1",
+    "axios": "^1.3.4",
+    "react-hot-toast": "^2.4.0",
+    "lucide-react": "^0.263.1",
+    "framer-motion": "^10.0.1",
+    "react-intersection-observer": "^9.5.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build:analyze": "npm run build && npx serve -s build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "vercel --prod"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.2.7",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.21"
+  }
+} 
