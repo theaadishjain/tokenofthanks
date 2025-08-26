@@ -22,9 +22,46 @@ app.use(helmet());
 app.use(compression());
 
 // CORS configuration
+const allowedOrigin = (process.env.FRONTEND_URL || 'http://localhost:3000').trim();
+
+// Log the FRONTEND_URL for debugging
+console.log('🔍 FRONTEND_URL:', JSON.stringify(allowedOrigin));
+console.log('🔍 FRONTEND_URL length:', allowedOrigin.length);
+console.log('🔍 FRONTEND_URL char codes:', Array.from(allowedOrigin).map(c => c.charCodeAt(0)));
+
+// Validate the origin URL
+const isValidUrl = (string) => {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
+if (!isValidUrl(allowedOrigin)) {
+  console.error('❌ Invalid FRONTEND_URL:', allowedOrigin);
+  console.error('❌ Please check your environment variables for extra spaces or newlines');
+  process.exit(1);
+}
+
+// Enhanced CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (origin === allowedOrigin) {
+      callback(null, true);
+    } else {
+      console.log('🚫 CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
 
 // Rate limiting
@@ -35,6 +72,13 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Request logging middleware for debugging
+app.use((req, res, next) => {
+  console.log(`📥 ${req.method} ${req.path}`);
+  console.log('📋 Headers:', JSON.stringify(req.headers, null, 2));
+  next();
+});
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -42,9 +86,8 @@ app.use(express.urlencoded({ extended: true }));
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
-    status: 'OK', 
-    message: 'Token of Thanks API is running',
-    timestamp: new Date().toISOString()
+    success: true, 
+    message: 'Server is healthy'
   });
 });
 
@@ -56,7 +99,18 @@ app.use('/api/rewards', rewardRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('❌ Error:', err.message);
+  console.error('❌ Stack:', err.stack);
+  
+  // Handle CORS errors specifically
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      success: false,
+      message: 'CORS: Origin not allowed',
+      error: process.env.NODE_ENV === 'development' ? err.message : 'CORS error'
+    });
+  }
+  
   res.status(500).json({ 
     success: false, 
     message: 'Something went wrong!',
