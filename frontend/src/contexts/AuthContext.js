@@ -21,7 +21,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const apiBaseUrl = process.env.REACT_APP_API_URL || 'https://tokenofthanks-production.up.railway.app';
     axios.defaults.baseURL = apiBaseUrl;
-    axios.defaults.withCredentials = true;
   }, []);
 
   // Set up axios defaults
@@ -56,10 +55,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post(
         '/api/auth/login',
-        JSON.stringify({ email, password }),
-        {
-          headers: { 'Content-Type': 'application/json' }
-        }
+        { email, password },
+        { headers: { 'Content-Type': 'application/json' } }
       );
       const { token: newToken, user: userData } = response.data;
       
@@ -70,6 +67,12 @@ export const AuthProvider = ({ children }) => {
       toast.success('Welcome back!');
       return { success: true };
     } catch (error) {
+      console.error('Login request failed:', {
+        url: axios.defaults.baseURL + '/api/auth/login',
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
       const message = error.response?.data?.message || 'Login failed';
       toast.error(message);
       return { success: false, error: message };
@@ -88,6 +91,12 @@ export const AuthProvider = ({ children }) => {
       toast.success('Account created successfully!');
       return { success: true };
     } catch (error) {
+      console.error('Register request failed:', {
+        url: axios.defaults.baseURL + '/api/auth/register',
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
       const message = error.response?.data?.message || 'Registration failed';
       toast.error(message);
       return { success: false, error: message };
