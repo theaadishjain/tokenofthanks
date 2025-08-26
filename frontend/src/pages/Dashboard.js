@@ -14,15 +14,20 @@ import {
 import ParticlesBackground from '../components/ParticlesBackground';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [balance, setBalance] = useState(0);
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   // Removed buy tokens feature
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (!authLoading && isAuthenticated) {
+      fetchDashboardData();
+    }
+    if (!authLoading && !isAuthenticated) {
+      setLoading(false);
+    }
+  }, [authLoading, isAuthenticated]);
 
   const fetchDashboardData = async () => {
     try {

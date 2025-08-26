@@ -142,7 +142,7 @@ const TransactionHistory = () => {
             </div>
             <div className="glass p-4 text-center rounded-xl">
               <div className="text-2xl font-bold text-green-400">
-                {transactions.filter(t => t.recipient?._id === user?.id).length}
+                {transactions.filter(t => t.recipient?._id === user?._id).length}
               </div>
               <div className="text-sm text-white/60">Received</div>
             </div>
@@ -194,7 +194,7 @@ const TransactionHistory = () => {
               <div className="space-y-4 p-6">
                 {transactions.map((transaction, index) => {
                   // Check if current user is the sender
-                  const isSender = transaction.sender?._id === user?.id;
+                  const isSender = transaction.sender?._id === user?._id;
                   const otherUser = isSender ? transaction.recipient : transaction.sender;
                   
                   return (

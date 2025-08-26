@@ -90,8 +90,13 @@ const SendTokens = () => {
 
     setLoading(true);
 
+    // Safety: ensure loading never stays stuck
+    const loadingSafetyTimeout = setTimeout(() => setLoading(false), 8000);
+
     try {
       const response = await axios.post('/api/tokens/send', formData);
+      // Clear loading immediately on success
+      setLoading(false);
       toast.success(`Successfully sent ${formData.amount} tokens!`);
       setBalance(response.data.newBalance);
       
@@ -104,12 +109,17 @@ const SendTokens = () => {
       
       // Navigate back to dashboard after a short delay
       setTimeout(() => {
-        navigate('/dashboard');
+        try {
+          navigate('/dashboard');
+        } catch (navErr) {
+          console.error('Navigation error after sending tokens:', navErr);
+        }
       }, 1500);
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to send tokens';
       toast.error(message);
     } finally {
+      clearTimeout(loadingSafetyTimeout);
       setLoading(false);
     }
   };

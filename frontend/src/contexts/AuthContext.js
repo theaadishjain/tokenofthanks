@@ -2,6 +2,15 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+// Configure axios base URL and Authorization header synchronously at module load
+const initialToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://tokenofthanks-production.up.railway.app';
+if (initialToken) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${initialToken}`;
+} else {
+  delete axios.defaults.headers.common['Authorization'];
+}
+
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -15,13 +24,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-
-  // Configure API base URL once
-  useEffect(() => {
-    const apiBaseUrl = process.env.REACT_APP_API_URL || 'https://tokenofthanks-production.up.railway.app';
-    axios.defaults.baseURL = apiBaseUrl;
-  }, []);
+  const [token, setToken] = useState(initialToken);
 
   // Set up axios defaults
   useEffect(() => {
@@ -61,6 +64,7 @@ export const AuthProvider = ({ children }) => {
       const { token: newToken, user: userData } = response.data;
       
       localStorage.setItem('token', newToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
       setToken(newToken);
       setUser(userData);
       
@@ -85,6 +89,7 @@ export const AuthProvider = ({ children }) => {
       const { token: newToken, user: userInfo } = response.data;
       
       localStorage.setItem('token', newToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
       setToken(newToken);
       setUser(userInfo);
       
