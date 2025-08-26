@@ -23,6 +23,9 @@ app.use(compression());
 
 // CORS configuration
 const allowedOrigin = (process.env.FRONTEND_URL || 'http://localhost:3000').trim();
+const additionalAllowedOrigins = [
+  'https://tokenofthankss.vercel.app'
+];
 
 // Log the FRONTEND_URL for debugging
 console.log('🔍 FRONTEND_URL:', JSON.stringify(allowedOrigin));
@@ -50,13 +53,14 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
-    if (origin === allowedOrigin) {
-      callback(null, true);
-    } else {
-      console.log('🚫 CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+
+    const allowedOrigins = [allowedOrigin, ...additionalAllowedOrigins];
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
+
+    console.log('🚫 CORS blocked origin:', origin);
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

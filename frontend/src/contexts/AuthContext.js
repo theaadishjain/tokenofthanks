@@ -17,6 +17,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  // Configure API base URL once
+  useEffect(() => {
+    const apiBaseUrl = process.env.REACT_APP_API_URL || 'https://tokenofthanks-production.up.railway.app';
+    axios.defaults.baseURL = apiBaseUrl;
+    axios.defaults.withCredentials = true;
+  }, []);
+
   // Set up axios defaults
   useEffect(() => {
     if (token) {
@@ -47,7 +54,13 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await axios.post(
+        '/api/auth/login',
+        JSON.stringify({ email, password }),
+        {
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
       const { token: newToken, user: userData } = response.data;
       
       localStorage.setItem('token', newToken);
