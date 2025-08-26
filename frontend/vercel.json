@@ -5,7 +5,12 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build"
+        "distDir": "build",
+        "env": {
+          "CI": "false",
+          "GENERATE_SOURCEMAP": "false"
+        },
+        "buildCommand": "npm run build"
       }
     }
   ],

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -29,14 +29,13 @@ const TransactionHistory = () => {
 
   useEffect(() => {
     fetchTransactions();
-  }, [currentPage]);
+  }, [currentPage, selectedFilter]);
 
   useEffect(() => {
     setCurrentPage(1);
-    fetchTransactions();
   }, [selectedFilter]);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`/api/tokens/history?page=${currentPage}&limit=10`);
@@ -51,7 +50,7 @@ const TransactionHistory = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, selectedFilter]);
 
   const getTransactionIcon = (type) => {
     switch (type) {
@@ -76,20 +75,7 @@ const TransactionHistory = () => {
     return 'text-white/60';
   };
 
-  const getTransactionTypeLabel = (type) => {
-    switch (type) {
-      case 'SEND':
-        return 'Sent';
-      case 'RECEIVE':
-        return 'Received';
-      case 'PURCHASE':
-        return 'Purchased';
-      case 'REDEEM':
-        return 'Redeemed';
-      default:
-        return type;
-    }
-  };
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

@@ -23,7 +23,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  const { isAuthenticated, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return <LoadingSpinner />;

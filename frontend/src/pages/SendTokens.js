@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -14,7 +13,6 @@ import {
 import ParticlesBackground from '../components/ParticlesBackground';
 
 const SendTokens = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     recipientEmail: '',
